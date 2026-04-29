@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Il Cibo nel Corpo – App Inclusiva</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+
+  :root {
+    --bg: #fff8ee;
+    --primary: #2e7d5e;
+    --accent: #f4a72a;
+    --red: #e05252;
+    --blue: #4a7fd4;
+    --purple: #8b5cf6;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    color: var(--text);
+  }
+
+  /* HEADER */
+  .top-bar {
+    width: 100%;
+    max-width: 700px;
+    background: var(--primary);
+    border-radius: 20px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .top-bar h1 {
+    color: white;
+    font-size: 1.5em;
+    font-weight: 900;
+    line-height: 1.1;
+  }
+  .top-bar .emoji-big { font-size: 2.2em; }
+
+  /* STARS */
+  .stars-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .star {
+    font-size: 2em;
+    opacity: 0.25;
+    transition: all 0.3s;
+  }
+  .star.earned { opacity: 1; transform: scale(1.2); }
+
+  /* MODE NAV */
+  .mode-nav {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 14px 10px;
+    border: 3px solid transparent;
+    border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1em;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    color: #555;
+  }
+  .mode-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 6px 18px rgba(46,125,94,0.3);
+  }
+  .mode-btn .mico { font-size: 1.4em; display: block; margin-bottom: 4px; }
+
+  /* MAIN CARD */
+  .main-card {
+    width: 100%;
+    max-width: 700px;
+    background: var(--card);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    margin-bottom: 16px;
+  }
+
+  /* SCREEN SYSTEM */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* SCREEN 1: ESPLORA */
+  .organ-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .organ-btn {
+    background: linear-gradient(135deg, #e8f5ee, #c8ead8);
+    border: 3px solid transparent;
+    border-radius: 20px;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .organ-btn:active, .organ-btn.selected {
+    border-color: var(--primary);
+    transform: scale(0.97);
+    background: linear-gradient(135deg, #c8ead8, #a4d8be);
+  }
+  .organ-btn .org-emoji { font-size: 2.8em; display: block; margin-bottom: 8px; }
+  .organ-btn .org-name { font-size: 1em; font-weight: 800; color: var(--primary); }
+
+  .organ-detail {
+    margin-top: 20px;
+    background: #f0faf5;
+    border-radius: 16px;
+    padding: 20px;
+    display: none;
+    animation: fadeIn 0.3s;
+  }
+  .organ-detail.show { display: block; }
+  .organ-detail .od-title { font-size: 1.4em; font-weight: 900; color: var(--primary); margin-bottom: 10px; }
+  .organ-detail .od-desc { font-size: 1.05em; line-height: 1.7; color: #333; }
+  .organ-detail .od-emoji { font-size: 3em; float: right; margin: -4px 0 0 12px; }
+  .speak-btn {
+    margin-top: 14px;
+    background: var(--accent);
+    border: none;
+    border-radius: 14px;
+    padding: 12px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1em;
+    font-weight: 800;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(244,167,42,0.4);
+    transition: all 0.2s;
+  }
+  .speak-btn:active { transform: scale(0.96); }
+
+  /* SCREEN 2: GIOCO SCELTA */
+  .game-prompt {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .game-prompt .prompt-food { font-size: 4em; display: block; margin-bottom: 8px; }
+  .game-prompt h2 { font-size: 1.3em; font-weight: 800; color: var(--text); }
+  .game-prompt p { color: #666; font-size: 1em; margin-top: 4px; }
+
+  .choice-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 10px;
+  }
+  .choice-btn {
+    border: 4px solid #e0e0e0;
+    border-radius: 22px;
+    padding: 22px 10px;
+    text-align: center;
+    cursor: pointer;
+    background: white;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    font-family: 'Nunito', sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn:active { transform: scale(0.96); }
+  .choice-btn .ch-emoji { font-size: 3.2em; display: block; margin-bottom: 10px; }
+  .choice-btn .ch-label { font-size: 1.05em; font-weight: 800; color: #333; }
+  .choice-btn.correct-anim {
+    border-color: var(--primary);
+    background: #e8f5ee;
+    animation: bounceIn 0.5s;
+  }
+  .choice-btn.wrong-anim {
+    border-color: var(--red);
+    background: #ffeaea;
+    animation: shake 0.4s;
+  }
+
+  .game-feedback {
+    margin-top: 18px;
+    text-align: center;
+    border-radius: 16px;
+    padding: 18px;
+    display: none;
+  }
+  .game-feedback.show { display: block; animation: fadeIn 0.3s; }
+  .game-feedback.ok { background: #e8f5ee; border: 3px solid var(--primary); }
+  .game-feedback.no { background: #ffeaea; border: 3px solid var(--red); }
+  .game-feedback .fb-emoji { font-size: 3em; }
+  .game-feedback p { font-size: 1.1em; font-weight: 700; margin-top: 6px; }
+  .next-btn {
+    margin-top: 14px;
+    background: var(--primary);
+    border: none;
+    border-radius: 14px;
+    padding: 14px 32px;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1em;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(46,125,94,0.3);
+    transition: all 0.2s;
+  }
+  .next-btn:active { transform: scale(0.96); }
+
+  /* SCREEN 3: VIAGGIO */
+  .journey-title {
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 20px;
+  }
+  .journey-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    background: #f8f8f8;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 3px solid transparent;
+  }
+  .journey-step:active, .journey-step.active {
+    background: #e8f5ee;
+    border-color: var(--primary);
+  }
+  .journey-step .js-num {
+    width: 36px; height: 36px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: 1em;
+    flex-shrink: 0;
+  }
+  .journey-step .js-emoji { font-size: 2em; flex-shrink: 0; }
+  .journey-step .js-text { font-size: 1em; font-weight: 700; color: #333; }
+  .journey-step .js-sub { font-size: 0.85em; color: #777; font-weight: 400; }
+
+  /* CONFETTI */
+  .confetti-wrap {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+  }
+  .confetti-wrap.show { display: block; }
+  .confetti-piece {
+    position: absolute;
+    width: 12px; height: 12px;
+    opacity: 0;
+    animation: fall 1.5s ease-in forwards;
+    border-radius: 2px;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(540deg); opacity: 0; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.95); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  /* FOOTER INFO */
+  .footer-info {
+    font-size: 0.8em;
+    color: #aaa;
+    text-align: center;
+    margin-top: 8px;
+    max-width: 700px;
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI -->
+<div class="confetti-wrap" id="confetti"></div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div>
+    <h1>Il Cibo<br>nel Corpo 🍎</h1>
+  </div>
+  <div class="emoji-big">🫁</div>
+</div>
+
+<!-- STELLE PROGRESSO -->
+<div class="stars-row" id="starsRow">
+  <span class="star" id="s1">⭐</span>
+  <span class="star" id="s2">⭐</span>
+  <span class="star" id="s3">⭐</span>
+  <span class="star" id="s4">⭐</span>
+  <span class="star" id="s5">⭐</span>
+</div>
+
+<!-- NAVIGAZIONE MODALITÀ -->
+<div class="mode-nav">
+  <button class="mode-btn active" onclick="setMode('esplora', this)">
+    <span class="mico">🔍</span>
+    ESPLORA
+  </button>
+  <button class="mode-btn" onclick="setMode('gioco', this)">
+    <span class="mico">🎮</span>
+    GIOCO
+  </button>
+  <button class="mode-btn" onclick="setMode('viaggio', this)">
+    <span class="mico">🚀</span>
+    VIAGGIO
+  </button>
+</div>
+
+<!-- MAIN CARD -->
+<div class="main-card">
+
+  <!-- SCHERMATA ESPLORA -->
+  <div class="screen active" id="screen-esplora">
+    <div class="organ-grid">
+      <button class="organ-btn" onclick="showOrgan('bocca')">
+        <span class="org-emoji">👄</span>
+        <span class="org-name">BOCCA</span>
+      </button>
+      <button class="organ-btn" onclick="showOrgan('stomaco')">
+        <span class="org-emoji">🫙</span>
+        <span class="org-name">STOMACO</span>
+      </button>
+      <button class="organ-btn" onclick="showOrgan('intestino')">
+        <span class="org-emoji">🌀</span>
+        <span class="org-name">INTESTINO</span>
+      </button>
+      <button class="organ-btn" onclick="showOrgan('fegato')">
+        <span class="org-emoji">🟤</span>
+        <span class="org-name">FEGATO</span>
+      </button>
+    </div>
+
+    <div class="organ-detail" id="organDetail">
+      <div class="od-emoji" id="odEmoji"></div>
+      <div class="od-title" id="odTitle"></div>
+      <div class="od-desc" id="odDesc"></div>
+      <button class="speak-btn" onclick="speakDetail()">🔊 Ascolta</button>
+    </div>
+  </div>
+
+  <!-- SCHERMATA GIOCO -->
+  <div class="screen" id="screen-gioco">
+    <div class="game-prompt">
+      <span class="prompt-food" id="foodEmoji">🍕</span>
+      <h2 id="gameQuestion">Dove va questo cibo?</h2>
+      <p id="gameSubtitle">Tocca la risposta giusta!</p>
+    </div>
+    <div class="choice-pair" id="choicePair"></div>
+    <div class="game-feedback" id="gameFeedback">
+      <div class="fb-emoji" id="fbEmoji"></div>
+      <p id="fbText"></p>
+      <button class="next-btn" onclick="nextQuestion()">Avanti ➡️</button>
+    </div>
+  </div>
+
+  <!-- SCHERMATA VIAGGIO -->
+  <div class="screen" id="screen-viaggio">
+    <div class="journey-title">🚀 Il viaggio del cibo!</div>
+    <div id="journeySteps"></div>
+  </div>
+
+</div>
+
+<div class="footer-info">
+  Liceo Labriola – Lezione simulata inclusiva | Apparato Digerente | Classe 5ª Primaria
+</div>
+
+<script>
+  // ========== DATI ORGANI ==========
+  const organi = {
+    bocca: {
+      emoji: '👄',
+      nome: 'Bocca',
+      desc: 'La bocca è dove il cibo entra nel corpo. I denti spezzano il cibo a pezzetti. La saliva bagna il cibo. 😋',
+      speak: 'La bocca è dove il cibo entra nel corpo. I denti lo spezzano. La saliva lo bagna.'
+    },
+    stomaco: {
+      emoji: '🫙',
+      nome: 'Stomaco',
+      desc: 'Lo stomaco è come un sacchetto. Mescola il cibo con i succhi speciali e lo trasforma in una poltiglia. 💪',
+      speak: 'Lo stomaco mescola il cibo e lo trasforma. È come un sacchetto che si strizza.'
+    },
+    intestino: {
+      emoji: '🌀',
+      nome: 'Intestino',
+      desc: 'L\'intestino è un tubo molto lungo. Prende le cose buone del cibo e le manda nel sangue. 🌀',
+      speak: 'L\'intestino è lungo e arricciolato. Prende le cose buone del cibo e le porta nel sangue.'
+    },
+    fegato: {
+      emoji: '🟤',
+      nome: 'Fegato',
+      desc: 'Il fegato pulisce il sangue e aiuta a digerire i grassi. È un aiutante importantissimo! 🦸',
+      speak: 'Il fegato pulisce il sangue. Aiuta a digerire i grassi. È molto importante per il corpo.'
+    }
+  };
+
+  let currentOrganKey = null;
+
+  function showOrgan(key) {
+    const o = organi[key];
+    currentOrganKey = key;
+    document.getElementById('odEmoji').textContent = o.emoji;
+    document.getElementById('odTitle').textContent = o.nome;
+    document.getElementById('odDesc').textContent = o.desc;
+    const det = document.getElementById('organDetail');
+    det.classList.add('show');
+    speak(o.speak);
+  }
+
+  function speakDetail() {
+    if (currentOrganKey) speak(organi[currentOrganKey].speak);
+  }
+
+  // ========== TTS ==========
+  function speak(text) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'it-IT';
+    utt.rate = 0.85;
+    utt.pitch = 1.1;
+    window.speechSynthesis.speak(utt);
+  }
+
+  // ========== MODALITÀ ==========
+  function setMode(mode, btn) {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + mode).classList.add('active');
+    if (mode === 'gioco') initGame();
+    if (mode === 'viaggio') buildJourney();
+  }
+
+  // ========== GIOCO ==========
+  const domande = [
+    {
+      food: '🍕',
+      foodName: 'pizza',
+      question: 'Dove va la pizza per prima?',
+      correct: { emoji: '👄', label: 'BOCCA', key: 'bocca' },
+      wrong: { emoji: '🌀', label: 'INTESTINO', key: 'intestino' }
+    },
+    {
+      food: '🍌',
+      foodName: 'banana',
+      question: 'Il cibo masticato va qui!',
+      correct: { emoji: '🫙', label: 'STOMACO', key: 'stomaco' },
+      wrong: { emoji: '👄', label: 'BOCCA', key: 'bocca' }
+    },
+    {
+      food: '🥕',
+      foodName: 'carota',
+      question: 'Dove si assorbono i nutrienti?',
+      correct: { emoji: '🌀', label: 'INTESTINO', key: 'intestino' },
+      wrong: { emoji: '🫙', label: 'STOMACO', key: 'stomaco' }
+    },
+    {
+      food: '🧈',
+      foodName: 'grasso',
+      question: 'Chi aiuta a digerire i grassi?',
+      correct: { emoji: '🟤', label: 'FEGATO', key: 'fegato' },
+      wrong: { emoji: '🌀', label: 'INTESTINO', key: 'intestino' }
+    },
+    {
+      food: '🍎',
+      foodName: 'mela',
+      question: 'Da dove inizia il viaggio del cibo?',
+      correct: { emoji: '👄', label: 'BOCCA', key: 'bocca' },
+      wrong: { emoji: '🟤', label: 'FEGATO', key: 'fegato' }
+    }
+  ];
+
+  let currentQ = 0;
+  let correctCount = 0;
+  let answered = false;
+
+  function initGame() {
+    currentQ = 0;
+    correctCount = 0;
+    answered = false;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('earned'));
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    answered = false;
+    const q = domande[currentQ];
+    document.getElementById('foodEmoji').textContent = q.food;
+    document.getElementById('gameQuestion').textContent = q.question;
+    document.getElementById('gameSubtitle').textContent = 'Tocca la risposta giusta! 👆';
+    document.getElementById('gameFeedback').className = 'game-feedback';
+
+    // Shuffle left/right
+    const pair = document.getElementById('choicePair');
+    const items = [
+      { ...q.correct, isCorrect: true },
+      { ...q.wrong, isCorrect: false }
+    ];
+    if (Math.random() > 0.5) items.reverse();
+
+    pair.innerHTML = items.map(item => `
+      <button class="choice-btn" onclick="checkAnswer(this, ${item.isCorrect})">
+        <span class="ch-emoji">${item.emoji}</span>
+        <span class="ch-label">${item.label}</span>
+      </button>
+    `).join('');
+
+    speak(q.question + ' Tocca la risposta giusta!');
+  }
+
+  function checkAnswer(btn, isCorrect) {
+    if (answered) return;
+    answered = true;
+
+    const fb = document.getElementById('gameFeedback');
+
+    if (isCorrect) {
+      btn.classList.add('correct-anim');
+      fb.className = 'game-feedback ok show';
+      document.getElementById('fbEmoji').textContent = '🎉';
+      document.getElementById('fbText').textContent = 'Bravissimo! ';
+      correctCount++;
+      earnStar(correctCount);
+      speak('Bravissimo! Risposta giusta!');
+      launchConfetti();
+    } else {
+      btn.classList.add('wrong-anim');
+      // Highlight correct
+      document.querySelectorAll('.choice-btn').forEach(b => {
+        if (!b.classList.contains('wrong-anim')) b.classList.add('correct-anim');
+      });
+      fb.className = 'game-feedback no show';
+      document.getElementById('fbEmoji').textContent = '💪';
+      document.getElementById('fbText').textContent = 'Riprova ancora!';
+      speak('Quasi! Guarda la risposta giusta.');
+    }
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    if (currentQ >= domande.length) {
+      currentQ = 0; // Loop
+    }
+    renderQuestion();
+  }
+
+  function earnStar(n) {
+    const s = document.getElementById('s' + n);
+    if (s) {
+      s.classList.add('earned');
+      s.style.transform = 'scale(1.4)';
+      setTimeout(() => s.style.transform = '', 500);
+    }
+  }
+
+  // ========== VIAGGIO ==========
+  const tappe = [
+    { num: '1', emoji: '👄', name: 'Bocca', sub: 'Il cibo entra e viene masticato' },
+    { num: '2', emoji: '🌊', name: 'Esofago', sub: 'Un tubo che porta il cibo in basso' },
+    { num: '3', emoji: '🫙', name: 'Stomaco', sub: 'Il cibo viene mescolato e trasformato' },
+    { num: '4', emoji: '🟤', name: 'Fegato', sub: 'Pulisce e aiuta a digerire i grassi' },
+    { num: '5', emoji: '🌀', name: 'Intestino Tenue', sub: 'Assorbe i nutrienti nel sangue' },
+    { num: '6', emoji: '⭕', name: 'Intestino Crasso', sub: 'Assorbe acqua, forma le feci' },
+    { num: '7', emoji: '🚽', name: 'Uscita!', sub: 'Il viaggio è finito!' }
+  ];
+
+  function buildJourney() {
+    const c = document.getElementById('journeySteps');
+    c.innerHTML = tappe.map((t, i) => `
+      <div class="journey-step" onclick="speakTappa(${i})">
+        <div class="js-num">${t.num}</div>
+        <div class="js-emoji">${t.emoji}</div>
+        <div>
+          <div class="js-text">${t.name}</div>
+          <div class="js-sub">${t.sub}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function speakTappa(i) {
+    const t = tappe[i];
+    speak('Tappa ' + t.num + ': ' + t.name + '. ' + t.sub);
+    document.querySelectorAll('.journey-step').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.journey-step')[i].classList.add('active');
+  }
+
+  // ========== CONFETTI ==========
+  function launchConfetti() {
+    const wrap = document.getElementById('confetti');
+    wrap.innerHTML = '';
+    wrap.classList.add('show');
+    const colors = ['#f4a72a','#2e7d5e','#4a7fd4','#e05252','#8b5cf6','#f9e94e'];
+    for (let i = 0; i < 30; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '-20px';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDelay = Math.random() * 0.8 + 's';
+      el.style.width = (8 + Math.random() * 10) + 'px';
+      el.style.height = (8 + Math.random() * 10) + 'px';
+      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      wrap.appendChild(el);
+    }
+    setTimeout(() => { wrap.classList.remove('show'); wrap.innerHTML = ''; }, 2000);
+  }
+</script>
+</body>
+</html>
